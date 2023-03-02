@@ -12,6 +12,7 @@ function App() {
   const [videoFileValue, setVideoFileValue] = useState('');
   const [isScriptLoaded, setIsScriptLoaded] = useState(false);
   const [videoTrimmedUrl, setVideoTrimmedUrl] = useState('');
+  const [videoTextUrl, setVideoTextUrl] = useState('');
   const videoRef = useRef();
   let initialSliderValue = 0;
 
@@ -165,8 +166,30 @@ function App() {
         new Blob([data.buffer], { type: videoFileValue.type }),
       );
       setVideoTrimmedUrl(url);
+
+      setTimeout(() => {
+        hanldeText()
+      }, 1000)
     }
   };
+
+  const hanldeText = async () => {
+    if (isScriptLoaded) {
+      const { name, type } = videoFileValue;
+      const videoFileType = type.split('/')[1];
+      console.log("hannlde text")
+      ffmpeg.FS('writeFile', 'Roboto-Regular.ttf', await window.FFmpeg.fetchFile('https://cdnjs.cloudflare.com/ajax/libs/materialize/0.98.1/fonts/roboto/Roboto-Regular.ttf'));
+
+      await ffmpeg.run("-i", `out.${videoFileType}`, "-vf", "drawtext=fontfile='Roboto-Regular.ttf:fontcolor=white:fontsize=50:text='HARRY POTTER':x=(w-tw)/2:y=200", "-preset", "ultrafast", "-y", `out-two.${videoFileType}`);
+    
+      const data = ffmpeg.FS('readFile', `out-two.${videoFileType}`);
+      const url = URL.createObjectURL(
+        new Blob([data.buffer], { type: videoFileValue.type }),
+      );
+      setVideoTextUrl(url);
+    
+    }
+  }
 
   return (
     <div className="App">
@@ -193,11 +216,17 @@ function App() {
           {convertToHHMMSS(endTime)}
           <br />
           <button onClick={handlePlay}>Play</button> &nbsp;
-          <button onClick={handleTrim}>Trim</button>
+          <button onClick={handleTrim}>Trim and add Text</button>
           <br />
           {videoTrimmedUrl && (
             <video controls>
               <source src={videoTrimmedUrl} type={videoFileValue.type} />
+            </video>
+          )}
+           <br />
+          {videoTextUrl && (
+            <video controls>
+              <source src={videoTextUrl} type={videoFileValue.type} />
             </video>
           )}
         </React.Fragment>
