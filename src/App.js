@@ -13,6 +13,7 @@ function App() {
   const [isScriptLoaded, setIsScriptLoaded] = useState(false);
   const [videoTrimmedUrl, setVideoTrimmedUrl] = useState('');
   const [videoTextUrl, setVideoTextUrl] = useState('');
+  const [text, setText] = useState('');
   const videoRef = useRef();
   let initialSliderValue = 0;
 
@@ -194,6 +195,7 @@ function App() {
   return (
     <div className="App">
       <input type="file" onChange={handleFileUpload} />
+      <input type="text" value={text} onChange={(e) => setText(e.target.value)} />
       <br />
       {videoSrc.length ? (
         <React.Fragment>
